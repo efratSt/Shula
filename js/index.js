@@ -2,6 +2,10 @@
 
 const MINE = '💣'
 const FLAGE = '🚩'
+const NORMAL = '🙂'
+const LOSE = '🤬'
+const WIN = '🤩'
+
 var gBoard
 var gSize
 var gMine
@@ -10,6 +14,8 @@ var gLevel = {
     mine: 2,
 }
 
+
+var gIsDone
 var gIntervaiTime
 var gLife
 var LIFE = '❤️'
@@ -24,8 +30,11 @@ var gGame = {
 
 function init() {
 
-
+    clearInterval(gIntervaiTime)
+    var elImuji = document.querySelector('.imuji')
+    elImuji.innerText = NORMAL
     var time = Date.now()
+    gIsDone = false
 
     gBoard = buildBord(gLevel.SIZE)
 
@@ -36,9 +45,10 @@ function init() {
         secsPassed: 0,
     }
 
+    var elTimer = document.querySelector('h2 span')
     gIntervaiTime = setInterval(() => {
         gGame.secsPassed = Date.now() - time
-        console.log(gGame.secsPassed / 1000);
+        elTimer.innerText = gGame.secsPassed / 1000
     }, 1000)
 
     addRandomaliMine(gBoard, gLevel.mine)
@@ -51,17 +61,11 @@ function init() {
     for (var i = 0; i < gLife; i++) {
         elLife.innerText += LIFE + ' '
     }
-
-    // var elH1 = document.querySelector('h1')
-    // elH1.hidden = true
-
-    // window.addEventListener('contextmenu', (event) => {
-    //     console.log(event.button)
-    //   })
 }
 
 
 function beginner() {
+    clearInterval(gIntervaiTime)
     gLevel = {
         SIZE: 4,
         mine: 2,
@@ -69,6 +73,7 @@ function beginner() {
     init()
 }
 function medium() {
+    clearInterval(gIntervaiTime)
     gLevel = {
         SIZE: 8,
         mine: 14,
@@ -76,6 +81,7 @@ function medium() {
     init()
 }
 function expert() {
+    clearInterval(gIntervaiTime)
     gLevel = {
         SIZE: 12,
         mine: 32,
@@ -119,13 +125,13 @@ function renderBoard(board) {
 
             if (cell.isMine) className += ' mine'
 
-            if (cell.isShown) {
-                className += ' show'
-                inHTML = (cell.minesAroundCount === 0) ? '' : cell.minesAroundCount
-            }
             if (cell.isMarked) {
                 className += 'mark '
                 inHTML = FLAGE
+            }
+            if (cell.isShown) {
+                className += ' show'
+                inHTML = (cell.minesAroundCount === 0) ? '' : cell.minesAroundCount
             }
 
             strHTML += `<td class="cell${className}"
@@ -149,31 +155,38 @@ function renderBoard(board) {
 
 
 function cellClicked(event, elCell, i, j) {
-    // if (gLife === 0 ) return
-    if (gBoard[i][j].isShown || gBoard[i][j].isMarked) return
+
+    var elImuji = document.querySelector('.imuji')
+    elImuji.innerText = NORMAL
+
+    if (gBoard[i][j].isShown) return //אם אתה לחוץ כבר אל תעשה כלום
+    if (event.button !== 2 && gBoard[i][j].isMarked) return //אם גם לחיצה רגילה וגם מדוגל אל תעשה כלום
+
+    if (gLife === 0 && gIsDone === true) return
 
 
-
-    
     if (gBoard[i][j].minesAroundCount === MINE) {
+
+        if (gBoard[i][j].isMarked === true || event.button === 2) elImuji.innerText = NORMAL
+        else elImuji.innerText = LOSE
+
         if (gLife === 0) {
             showAllMine()
-            
-            // stopGame()
+            clearInterval(gIntervaiTime)
+
+            gIsDone = true
             // return
+
         } else {
-            gLife--
-            // var elLife = document.querySelector('.life')
-            // elLife.innerText = ''
-            // for (var i = 0; i < gLife; i++) {
-            //     elLife.innerText += LIFE
-            // }
+            if (event.button !== 2) {
+                gLife--
+                printLife()
+            }
         }
     }
-   
-    // if (gLife === 0) return
 
     if (event.button === 2) {
+
         if (gBoard[i][j].isMarked) {
 
             gGame.markedCount--
@@ -181,7 +194,7 @@ function cellClicked(event, elCell, i, j) {
             gBoard[i][j].isMarked = false
             elCell.classList.remove('mark')
             renderBoard(gBoard)
-            // return
+            return
 
         } else {
             gGame.markedCount++
@@ -189,7 +202,7 @@ function cellClicked(event, elCell, i, j) {
             gBoard[i][j].isMarked = true
             elCell.classList.add('mark')
             renderBoard(gBoard)
-            // return
+            return
         }
     }
 
@@ -198,8 +211,7 @@ function cellClicked(event, elCell, i, j) {
 
     if (gBoard[i][j].minesAroundCount === 0) {
         showNeg(gBoard, i, j)
-        console.log(gGame.shownCount);
-        // return
+        return
     } else {
         elCell.classList.add('show')
 
@@ -233,6 +245,8 @@ function checkGameOver() {
     if (gGame.markedCount + gGame.shownCount === (gLevel.SIZE * gLevel.SIZE)) {
         clearInterval(gIntervaiTime)
         console.log('isVictory');
+        var elImuji = document.querySelector('.imuji')
+        elImuji.innerText = WIN
     }
 }
 
@@ -328,6 +342,15 @@ function addRandomaliMine(board, numOfMile) {
 }
 
 
+
+function printLife() {
+    var elLife = document.querySelector('.life')
+    elLife.innerText = ''
+    for (var i = 0; i < gLife; i++) {
+        elLife.innerText += LIFE + ' '
+    }
+
+}
 
 
 
