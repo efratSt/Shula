@@ -156,6 +156,8 @@ function renderBoard(board) {
 
 function cellClicked(event, elCell, i, j) {
 
+    if (gIsDone) return
+
     var elImuji = document.querySelector('.imuji')
     elImuji.innerText = NORMAL
 
@@ -247,6 +249,7 @@ function checkGameOver() {
         console.log('isVictory');
         var elImuji = document.querySelector('.imuji')
         elImuji.innerText = WIN
+        gIsDone = true
     }
 }
 
