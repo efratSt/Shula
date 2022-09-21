@@ -1,8 +1,12 @@
 /* table {
     border-spacing: 10px;
 } */
+body {
+    text-align: center;
+}
 
 .board {
+    text-align: center;
     padding-top: 60px;
     /* width: 600px;
     height: 600px; */
@@ -22,5 +26,19 @@
 .show {
     width: 50px;
     height: 50px;
+    background-color: rgb(255, 171, 210);
     /* background-color: black; */
+}
+
+.show.mine {
+    background-color: rgb(184, 184, 184);
+}
+
+.level {
+    background-color: rgb(245, 135, 190);
+    margin: 20px;
+    padding: 20px;
+    width: 100px;
+    height: 50px;
+    border-radius: 20%;
 }

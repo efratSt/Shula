@@ -9,15 +9,18 @@
     <link rel="stylesheet" href="./css/main.css">
 </head>
 
-<body onmousedown="cellMarked(event, this)">
+<body oncontextmenu="return false;" onload="init()" onmousedown="cellMarked(event, this)">
 
 
     <div class="button">
 
-        <button onclick="beginner()">Beginner</button>
-        <button onclick="medium()">Medium</button>
-        <button onclick="expert()">Expert</button>
+        <button class="level" onclick="beginner()">Beginner</button>
+        <button class="level" onclick="medium()">Medium</button>
+        <button class="level" onclick="expert()">Expert</button>
     </div>
+
+    <h1 class="life"></h1>
+
     <div class="board"></div>
 
     <!-- <h1>you lose</h1> -->
