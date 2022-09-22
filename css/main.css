@@ -5,30 +5,27 @@ body {
     text-align: center;
 }
 
-.board {
-    text-align: center;
-    padding-top: 60px;
-    /* width: 600px;
-    height: 600px; */
+table {
+    padding-top: 50px;
     margin: auto;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse:collapse;
+
 }
 
 
 .cell {
-    min-height: 40px;
-    min-width: 40px;
-    width: 50px;
-    height: 50px;
-    border-radius: 7px;
-    border: 1px solid rgb(228, 55, 55);
+    color: aliceblue;
+    min-height: 25px;
+    min-width: 25px;
+    width: 45px;
+    height: 45px;
+    border: 1px solid rgb(58, 6, 58);
 }
 
 .show {
-    min-height: 40px;
-    min-width: 40px;
-    width: 50px;
-    height: 50px;
-    background-color: rgb(255, 171, 210);
+    background-color: rgba(110, 72, 111, 0.998);
     /* background-color: black; */
 }
 
@@ -37,27 +34,35 @@ body {
 }
 
 .level {
-    background-color: rgb(245, 135, 190);
-    margin: 20px;
-    padding: 20px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(152, 101, 151);
+    margin: 10px;
+
     width: 100px;
     height: 50px;
-    border-radius: 20%;
 }
 
 .cell:hover {
     background-color: rgb(236, 236, 236);
+    color:  rgb(58, 6, 58);
 }
-.mark {
-    min-height: 40px;
-    min-width: 40px;
-    width: 50px;
-    height: 50px;
-}
+
+
 .imuji {
-    font-size: 50px;
+    font-size: 32px;
 }
-button.imuji{
+
+button.imuji {
     border: none;
     background-color: white;
+}
+
+.life {
+    font-size: 25px;
+}
+
+.hint {
+    font-size: 20px;
+    background-color: white;
+    border: none;
 }
