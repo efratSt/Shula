@@ -15,6 +15,12 @@ var gLevel = {
     mine: 2,
 }
 
+var gSuperHint = {
+    superIsOn: false,
+    numOfCell: 1
+}
+
+var gSafeClick
 var gIsHint
 var gIsDone
 var gIntervaiTime
@@ -47,21 +53,52 @@ function init() {
         secsPassed: 0,
     }
 
+    gSuperHint = {
+        superIsOn: false,
+        numOfCell: 1
+    }
     var elButtonHints = document.querySelectorAll('.hint')
     for (var i = 0; i < elButtonHints.length; i++) {
         elButtonHints[i].hidden = false
     }
 
+    var sec = 0
+    var min = 0
+    if (min < 10 ) min = '0' + min
+    var hour = 0
+    if (hour < 10 ) hour = '0' + hour
     var elTimer = document.querySelector('h2 span')
     gIntervaiTime = setInterval(() => {
-        gGame.secsPassed = Date.now() - time
-        elTimer.innerText = gGame.secsPassed / 1000
+        
+        sec++
+        if (sec < 10) sec = '0' + sec
+        if (sec > 59) {
+            sec = 0
+            min++
+        }
+        // if (min < 10 ) min = '0' + min
+        // min = min.substring(0, 1)
+
+        if (min > 59) {
+            min = 0
+            hour++
+        }
+
+
+        var allTime = hour + ':' + min + ':' + sec
+
+        elTimer.innerText = allTime
     }, 1000)
 
     addRandomaliMine(gBoard, gLevel.mine)
     gBoard = setMinesNegsCount(gBoard)
     renderBoard(gBoard)
     gLife = 3
+    gSafeClick = 3
+
+    var elSafe = document.querySelector('.safrCell span')
+    elSafe.innerText = gSafeClick
+
 
     var elLife = document.querySelector('.life .love')
     elLife.innerText = ''
@@ -163,6 +200,11 @@ function renderBoard(board) {
 
 
 function cellClicked(event, elCell, i, j) {
+    // if (gSuperHint.superIsOn) {
+    //     superHint({i,j})
+    //     gSuperHint.numOfCell = 2
+    //     return
+    // }
 
     if (gIsDone) return
     if (gBoard[i][j].isShown) return //אם אתה לחוץ כבר אל תעשה כלום
@@ -326,10 +368,9 @@ function showNeg(board, rowIdx, colIdx) {
             if (board[i][j].isShown === true) continue
 
             gGame.shownCount++
-            console.log(gGame.shownCount);
             board[i][j].isShown = true
             board[i][j].isFlagHint = false
-            
+
             elNegCell.classList.add('show')
             renderBoard(board)
 
@@ -400,7 +441,6 @@ function showNegRec(board, rowIdx, colIdx) {
 }
 
 
-
 function hints(elButtonHint) {
     elButtonHint.hidden = true
     gIsHint = true
@@ -438,13 +478,104 @@ function closeNegForHint(board, rowIdx, colIdx) {
             if (board[i][j].isFlagHint === true) {
 
                 var elNegCell = document.querySelector(`[data-ij="${i},${j}"]`)
-            board[i][j].isShown = false
-            elNegCell.classList.remove('show')
-            renderBoard(board)
+                board[i][j].isShown = false
+                elNegCell.classList.remove('show')
+                renderBoard(board)
 
             }
 
-            
+
         }
     }
 }
+
+
+function randomSafeCell() {
+    var safeCells = []
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            if (gBoard[i][j].minesAroundCount !== MINE && gBoard[i][j].isShown === false && gBoard[i][j].isMarked === false) {
+                safeCells.push({ i, j })
+            }
+        }
+    }
+    return safeCells[getRandomInt(0, safeCells.length)]
+}
+
+function safeCells() {
+    if (gSafeClick === 0) return
+    var safeCell = randomSafeCell()
+    if (!safeCell) return
+
+    var i = safeCell.i
+    var j = safeCell.j
+
+    if ((!i && i !== 0) || (!j && j !== 0)) return
+
+    gBoard[i][j].isShown = true
+    var elSafeCell = document.querySelector(`[data-ij="${i},${j}"]`)
+    elSafeCell.classList.add('show')
+    renderBoard(gBoard)
+    gSafeClick--
+
+    var elSafe = document.querySelector('.safrCell span')
+    elSafe.innerText = gSafeClick
+
+    setTimeout(() => {
+        gBoard[i][j].isShown = false
+        elSafeCell.classList.remove('show')
+        renderBoard(gBoard)
+    }, 2000)
+}
+
+// function superHintStart() {
+//     gSuperHint.superIsOn = true
+// }
+
+// function superHint(cell) {
+//     var cell1 = (gSuperHint.numOfCell === 1) ? cell : ''
+//     var cell2 = (gSuperHint.numOfCell === 2) ? cell : ''
+//     if (gSuperHint.numOfCell === 2) showCellsBySuperHint(cell1, cell2)
+// }
+
+// function showCellsBySuperHint(cell1, cell2) {
+//     gSuperHint.numOfCell = 1
+//     gSuperHint.superIsOn = false
+//     var firstCellI = cell1.i
+//     var firstCellJ = cell1.j
+//     var secondCellI = cell2.i
+//     var secondCellJ = cell2.j
+
+//     for (var i = firstCellI; i <= secondCellI; i++) {
+//         if (i < 0 || i >= gBoard.length) continue
+
+//         for (var j = firstCellJ; j <= secondCellJ; j++) {
+//             if (j < 0 || j >= gBoard[i].length) continue
+
+//             if (gBoard[i][j].isFlagHint === false) continue
+//             var elNegCell = document.querySelector(`[data-ij="${i},${j}"]`)
+//             gBoard[i][j].isShown = true
+//             elNegCell.classList.add('show')
+//             renderBoard(gBoard)
+
+//         }
+//     }
+
+//     setTimeout(()=> {
+//         for (var i = firstCellI; i <= secondCellI; i++) {
+//             if (i < 0 || i >= gBoard.length) continue
+    
+//             for (var j = firstCellJ; j <= secondCellJ; j++) {
+//                 if (j < 0 || j >= gBoard[i].length) continue
+    
+//                 if (gBoard[i][j].isFlagHint === false) continue
+//                 var elNegCell = document.querySelector(`[data-ij="${i},${j}"]`)
+//                 gBoard[i][j].isShown = false
+//                 elNegCell.classList.remove('show')
+//                 renderBoard(gBoard)
+    
+//             }
+//         }
+//     }, 2000)
+
+// }
