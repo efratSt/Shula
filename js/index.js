@@ -20,6 +20,8 @@ var gSuperHint = {
     numOfCell: 1
 }
 
+var gIsSuperhint 
+var gArrHint
 var gSafeClick
 var gIsHint
 var gIsDone
@@ -43,6 +45,8 @@ function init() {
     var time = Date.now()
     gIsDone = false
     gIsHint = false
+    gIsSuperhint = false
+    gArrHint = []
 
     gBoard = buildBord(gLevel.SIZE)
 
@@ -99,6 +103,9 @@ function init() {
     var elSafe = document.querySelector('.safrCell span')
     elSafe.innerText = gSafeClick
 
+    var elBtn = document.querySelector('.superHint')
+    elBtn.hidden = false
+
 
     var elLife = document.querySelector('.life .love')
     elLife.innerText = ''
@@ -106,7 +113,6 @@ function init() {
         elLife.innerText += LIFE + ' '
     }
 }
-
 
 function beginner() {
     clearInterval(gIntervaiTime)
@@ -117,7 +123,6 @@ function beginner() {
     init()
 }
 
-
 function medium() {
     clearInterval(gIntervaiTime)
     gLevel = {
@@ -127,7 +132,6 @@ function medium() {
     init()
 }
 
-
 function expert() {
     clearInterval(gIntervaiTime)
     gLevel = {
@@ -136,7 +140,6 @@ function expert() {
     }
     init()
 }
-
 
 function buildBord(size) {
     var board = []
@@ -155,7 +158,6 @@ function buildBord(size) {
     }
     return board
 }
-
 
 function renderBoard(board) {
     var strHTML = '<table border="1"><tbody>'
@@ -198,13 +200,12 @@ function renderBoard(board) {
     checkGameOver()
 }
 
-
 function cellClicked(event, elCell, i, j) {
-    // if (gSuperHint.superIsOn) {
-    //     superHint({i,j})
-    //     gSuperHint.numOfCell = 2
-    //     return
-    // }
+
+    if (gIsSuperhint) {
+        superHintStart({ i , j})
+        return
+    } 
 
     if (gIsDone) return
     if (gBoard[i][j].isShown) return //אם אתה לחוץ כבר אל תעשה כלום
@@ -285,7 +286,6 @@ function cellClicked(event, elCell, i, j) {
     }
 }
 
-
 function cellMarked(event, elCell) {
     // if (event.button === 2) {
     //     console.log(event);
@@ -293,7 +293,6 @@ function cellMarked(event, elCell) {
     // }
 
 }
-
 
 function checkGameOver() {
     if (gGame.shownCount === (gLevel.SIZE * gLevel.SIZE) || (gGame.markedCount === gLevel.mine && gGame.shownCount === (gLevel.SIZE * gLevel.SIZE) - gLevel.mine)) {
@@ -319,7 +318,6 @@ function showAllMine() {
             }
     }
 }
-
 //זה בודק תא ספציפי ומחזיר כמה פצצות יש לידו
 function setMinesNegsCountInCell(board, rowIdx, colIdx) {
     var count = 0;
@@ -352,7 +350,6 @@ function setMinesNegsCount(board) {
     return board
 }
 
-
 function showNeg(board, rowIdx, colIdx) {
 
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
@@ -380,7 +377,6 @@ function showNeg(board, rowIdx, colIdx) {
     // console.log(elNewCell);
 }
 
-
 function addRandomaliMine(board, numOfMile) {
     while (numOfMile !== 0) {
         var i = getRandomInt(0, gLevel.SIZE)
@@ -393,7 +389,6 @@ function addRandomaliMine(board, numOfMile) {
     }
 }
 
-
 function printLife() {
     var elLife = document.querySelector('.life .love')
     elLife.innerText = ''
@@ -402,7 +397,6 @@ function printLife() {
     }
 
 }
-
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -439,7 +433,6 @@ function showNegRec(board, rowIdx, colIdx) {
 
 
 }
-
 
 function hints(elButtonHint) {
     elButtonHint.hidden = true
@@ -489,7 +482,6 @@ function closeNegForHint(board, rowIdx, colIdx) {
     }
 }
 
-
 function randomSafeCell() {
     var safeCells = []
     for (var i = 0; i < gBoard.length; i++) {
@@ -528,54 +520,74 @@ function safeCells() {
     }, 2000)
 }
 
-// function superHintStart() {
-//     gSuperHint.superIsOn = true
-// }
+function superHint() {
+    gIsSuperhint = true
+    gArrHint = [] 
 
-// function superHint(cell) {
-//     var cell1 = (gSuperHint.numOfCell === 1) ? cell : ''
-//     var cell2 = (gSuperHint.numOfCell === 2) ? cell : ''
-//     if (gSuperHint.numOfCell === 2) showCellsBySuperHint(cell1, cell2)
-// }
+}
 
-// function showCellsBySuperHint(cell1, cell2) {
-//     gSuperHint.numOfCell = 1
-//     gSuperHint.superIsOn = false
-//     var firstCellI = cell1.i
-//     var firstCellJ = cell1.j
-//     var secondCellI = cell2.i
-//     var secondCellJ = cell2.j
+function superHintStart({ i , j }) {
+    gArrHint.push({ i , j })
 
-//     for (var i = firstCellI; i <= secondCellI; i++) {
-//         if (i < 0 || i >= gBoard.length) continue
+    if (gArrHint.length === 2) {
 
-//         for (var j = firstCellJ; j <= secondCellJ; j++) {
-//             if (j < 0 || j >= gBoard[i].length) continue
+        var firstCellI = gArrHint[0].i
+        var firstCellJ = gArrHint[0].j
+        var secondCellI = gArrHint[1].i
+        var secondCellJ = gArrHint[1].j
+        
+        if (firstCellI > secondCellI) {
+            var temp = firstCellI
+            firstCellI = secondCellI
+            secondCellI = temp
+        }
 
-//             if (gBoard[i][j].isFlagHint === false) continue
-//             var elNegCell = document.querySelector(`[data-ij="${i},${j}"]`)
-//             gBoard[i][j].isShown = true
-//             elNegCell.classList.add('show')
-//             renderBoard(gBoard)
+        if (firstCellJ > secondCellJ) {
+            var temp = firstCellJ
+            firstCellJ = secondCellJ
+            secondCellJ = temp
+        }
 
-//         }
-//     }
+        for (var i = firstCellI; i <= secondCellI; i++) {
 
-//     setTimeout(()=> {
-//         for (var i = firstCellI; i <= secondCellI; i++) {
-//             if (i < 0 || i >= gBoard.length) continue
-    
-//             for (var j = firstCellJ; j <= secondCellJ; j++) {
-//                 if (j < 0 || j >= gBoard[i].length) continue
-    
-//                 if (gBoard[i][j].isFlagHint === false) continue
-//                 var elNegCell = document.querySelector(`[data-ij="${i},${j}"]`)
-//                 gBoard[i][j].isShown = false
-//                 elNegCell.classList.remove('show')
-//                 renderBoard(gBoard)
-    
-//             }
-//         }
-//     }, 2000)
+            if (i < 0 || i >= gBoard.length) continue
+            for (var j = firstCellJ; j <= secondCellJ; j++) {
+                if (gBoard[i][j].isFlagHint === false) continue
 
-// }
+                if (gBoard[i][j].isFlagHint === false) continue
+                var elCell = document.querySelector(`[data-ij="${i},${j}"]`)
+                gBoard[i][j].isShown = true
+                elCell.classList.add('show')
+                renderBoard(gBoard)
+            }
+        }
+
+
+        setTimeout(()=> {
+                    for (var i = firstCellI; i <= secondCellI; i++) {
+                        if (i < 0 || i >= gBoard.length) continue
+                
+                        for (var j = firstCellJ; j <= secondCellJ; j++) {
+                            if (j < 0 || j >= gBoard[i].length) continue
+                
+                            if (gBoard[i][j].isFlagHint === false) continue
+                            var elCell = document.querySelector(`[data-ij="${i},${j}"]`)
+                            gBoard[i][j].isShown = false
+                            elCell.classList.remove('show')
+                            renderBoard(gBoard)
+                
+                        }
+                    }
+                }, 2000)
+
+
+        gIsSuperhint = false
+        var elBtn = document.querySelector('.superHint')
+        elBtn.hidden = true
+    }
+}
+
+
+
+
+
